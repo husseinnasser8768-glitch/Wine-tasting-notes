@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tasting Notes App</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #171a21;
+      --card-2: #1f2430;
+      --text: #f3f5f7;
+      --muted: #b6bec8;
+      --accent: #d4a24c;
+      --accent-2: #8fb3ff;
+      --danger: #d97070;
+      --ok: #6fbe87;
+      --border: #2a3040;
+      --shadow: 0 10px 28px rgba(0,0,0,0.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #0b0d12 0%, #11141b 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 14px 28px;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 14px 4px 12px;
+      backdrop-filter: blur(10px);
+      background: rgba(15,17,21,0.84);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.55rem;
+      letter-spacing: -0.02em;
+    }
+
+    .header-meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .header-card {
+      background: rgba(23,26,33,0.78);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+
+    .header-label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .header-card input[type="date"],
+    .header-card input[type="text"] {
+      width: 100%;
+      background: transparent;
+      color: var(--text);
+      border: 0;
+      padding: 0;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .card {
+      background: rgba(23,26,33,0.96);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 620px) {
+      .row, .row-3 { grid-template-columns: 1fr; }
+    }
+
+    .field { margin-bottom: 12px; }
+    label {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--card-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 13px;
+      font-size: 1rem;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    .pill-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-chip {
+      position: relative;
+    }
+
+    .check-chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .check-chip span {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 0.94rem;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.15s ease;
+    }
+
+    .check-chip input:checked + span {
+      background: rgba(212,162,76,0.18);
+      border-color: var(--accent);
+      color: #ffe3b4;
+    }
+
+    .pill {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 0.94rem;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.15s ease;
+    }
+
+    .pill.active {
+      background: rgba(212,162,76,0.18);
+      border-color: var(--accent);
+      color: #ffe3b4;
+    }
+
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .toggle-btn {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .toggle-btn.active.ok {
+      border-color: var(--ok);
+      background: rgba(111,190,135,0.16);
+      color: #d6f6e0;
+    }
+
+    .toggle-btn.active.bad {
+      border-color: var(--danger);
+      background: rgba(217,112,112,0.16);
+      color: #ffd5d5;
+    }
+
+    .range-wrap {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .range-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .range-value {
+      color: var(--accent-2);
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.77rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .primary { background: var(--accent); color: #1b1303; }
+    .secondary { background: var(--card-2); color: var(--text); border: 1px solid var(--border); }
+    .danger { background: #8a2e2e; color: white; }
+
+    .section-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 800;
+    }
+
+    .list-item {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .list-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .wine-title {
+      font-weight: 800;
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .meta, .mini {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.35;
+    }
+
+    .meta-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .badge {
+      background: rgba(143,179,255,0.13);
+      color: #dce7ff;
+      border: 1px solid rgba(143,179,255,0.28);
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .stars { font-weight: 800; color: #ffd782; }
+    .empty-state { color: var(--muted); text-align: center; padding: 18px 8px; }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 620px) {
+      .filter-bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Tasting Notes</h1>
+      <div class="header-meta">
+        <div class="header-card">
+          <label class="header-label" for="tastingDate">Tasting Date</label>
+          <input id="tastingDate" type="date" />
+        </div>
+        <div class="header-card">
+          <label class="header-label" for="repImporter">Rep / Importer</label>
+          <input id="repImporter" type="text" placeholder="Who are you tasting with?" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">New Wine</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="producer">Producer</label>
+          <input id="producer" type="text" placeholder="e.g. Karp-Schreiber" />
+        </div>
+        <div class="field">
+          <label for="wineName">Wine Name</label>
+          <input id="wineName" type="text" placeholder="e.g. Brauneberger Juffer Kabinett" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="">Select category</option>
+            <option>White</option>
+            <option>Red</option>
+            <option>Rose</option>
+            <option>Orange / Skin Contact</option>
+            <option>Sparkling</option>
+            <option>Dessert / Sweet</option>
+            <option>Fortified</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="variety">Variety</label>
+          <select id="variety">
+            <option value="">Select variety</option>
+            <option>Riesling</option>
+            <option>Pinot Noir</option>
+            <option>Chardonnay</option>
+            <option>Sauvignon Blanc</option>
+            <option>Cabernet Sauvignon</option>
+            <option>Syrah</option>
+            <option>Grenache</option>
+            <option>Nebbiolo</option>
+            <option>Sangiovese</option>
+            <option>Barbera</option>
+            <option>Albarino</option>
+            <option>Ribolla Gialla</option>
+            <option>Chenin Blanc</option>
+            <option>Gamay</option>
+            <option>Pinot Gris / Grigio</option>
+            <option>Gewurztraminer</option>
+            <option>Melon de Bourgogne</option>
+            <option>Tempranillo</option>
+            <option>Zinfandel</option>
+            <option>Blend</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-3">
+        <div class="field">
+          <label>Acid</label>
+          <div class="range-wrap">
+            <div class="range-head"><span>Level</span><span class="range-value" id="acidValue">3</span></div>
+            <input id="acid" type="range" min="1" max="5" step="1" value="3" />
+            <div class="scale"><span>Low</span><span>High</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Body</label>
+          <div class="range-wrap">
+            <div class="range-head"><span>Level</span><span class="range-value" id="bodyValue">3</span></div>
+            <input id="body" type="range" min="1" max="5" step="1" value="3" />
+            <div class="scale"><span>Light</span><span>Full</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Tannins</label>
+          <div class="range-wrap">
+            <div class="range-head"><span>Level</span><span class="range-value" id="tanninValue">2</span></div>
+            <input id="tannins" type="range" min="1" max="5" step="1" value="2" />
+            <div class="scale"><span>Low</span><span>High</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Sweetness</label>
+        <div class="range-wrap">
+          <div class="range-head"><span>Level</span><span class="range-value" id="sweetnessValue">2</span></div>
+          <input id="sweetness" type="range" min="1" max="5" step="1" value="2" />
+          <div class="scale"><span>Dry</span><span>Sweet</span></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Condition</label>
+          <div class="toggle-grid">
+            <button type="button" class="toggle-btn ok active" id="cleanBtn">Clean</button>
+            <button type="button" class="toggle-btn bad" id="flawedBtn">Flawed</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="flawType">Flaw Type</label>
+          <select id="flawType">
+            <option value="">None / N/A</option>
+            <option>Mousy</option>
+            <option>Reductive</option>
+            <option>Oxidized</option>
+            <option>VA</option>
+            <option>Brett</option>
+            <option>Corked / TCA</option>
+            <option>Volatile + Reductive</option>
+            <option>Mousy + Reductive</option>
+            <option>SO2 / Sulfur note</option>
+            <option>Heat / Cooked</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Rating</label>
+        <div class="pill-grid" id="ratingGroup">
+          <button type="button" class="pill" data-value="1 Star">&#9733;</button>
+          <button type="button" class="pill" data-value="2 Star">&#9733;&#9733;</button>
+          <button type="button" class="pill" data-value="3 Star">&#9733;&#9733;&#9733;</button>
+          <button type="button" class="pill" data-value="DNS">DNS</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Placement</label>
+        <div class="pill-grid" id="placementGroup">
+          <button type="button" class="pill" data-value="BTG">BTG</button>
+          <button type="button" class="pill" data-value="Bottle">Bottle</button>
+          <button type="button" class="pill" data-value="No">No</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Winemaking Technique</label>
+        <div class="check-grid" id="techniqueGroup">
+          <label class="check-chip"><input type="checkbox" value="Classic" /><span>Classic</span></label>
+          <label class="check-chip"><input type="checkbox" value="Natural" /><span>Natural</span></label>
+          <label class="check-chip"><input type="checkbox" value="Biodynamic" /><span>Biodynamic</span></label>
+          <label class="check-chip"><input type="checkbox" value="Sustainable" /><span>Sustainable</span></label>
+          <label class="check-chip"><input type="checkbox" value="Organic" /><span>Organic</span></label>
+          <label class="check-chip"><input type="checkbox" value="Low Intervention" /><span>Low Intervention</span></label>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="price">Price</label>
+          <input id="price" type="text" placeholder="e.g. 158 / 176 or 24" />
+        </div>
+        <div class="field">
+          <label for="quickTag">Quick Tag</label>
+          <select id="quickTag">
+            <option value="">None</option>
+            <option>Standout</option>
+            <option>Good Value</option>
+            <option>Overpriced</option>
+            <option>Summer</option>
+            <option>BTG candidate</option>
+            <option>Niche</option>
+            <option>Serious bottle</option>
+            <option>Crowd-friendly</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="notes">Quick Notes</label>
+        <textarea id="notes" placeholder="Short notes only - e.g. white peach, slate, racy, good BTG"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="saveBtn">Save Entry</button>
+        <button class="secondary" id="clearBtn">Clear Form</button>
+        <button class="secondary" id="exportBtn">Export JSON</button>
+        <button class="danger" id="wipeBtn">Delete All</button>
+      </div>
+      <div class="small-note">Saved locally in your browser. Export before switching devices.</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Saved Wines</div>
+      <div class="filter-bar">
+        <div class="field" style="margin-bottom:0;">
+          <label for="ratingFilter">Filter by Rating</label>
+          <select id="ratingFilter">
+            <option value="">All ratings</option>
+            <option value="1 Star">1 Star</option>
+            <option value="2 Star">2 Star</option>
+            <option value="3 Star">3 Star</option>
+            <option value="DNS">DNS</option>
+            <option value="unrated">Unrated</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="priceFilter">Filter by Price</label>
+          <select id="priceFilter">
+            <option value="">All prices</option>
+            <option value="under-25">Under $25</option>
+            <option value="25-50">$25 to $50</option>
+            <option value="50-100">$50 to $100</option>
+            <option value="100-plus">$100+</option>
+            <option value="unpriced">No price</option>
+          </select>
+        </div>
+      </div>
+      <div id="entries"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'tasting_notes_entries_v1';
+    const SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwE9eP3HUzVQ_eaxhD4_m-eZZojUmEIfZuoy90yHUle1g0eltri3qz9EbuEpRIo7hWWPA/exec';
+
+    const tastingDate = document.getElementById('tastingDate');
+    const repImporter = document.getElementById('repImporter');
+    const producer = document.getElementById('producer');
+    const wineName = document.getElementById('wineName');
+    const category = document.getElementById('category');
+    const variety = document.getElementById('variety');
+    const acid = document.getElementById('acid');
+    const body = document.getElementById('body');
+    const tannins = document.getElementById('tannins');
+    const sweetness = document.getElementById('sweetness');
+    const acidValue = document.getElementById('acidValue');
+    const bodyValue = document.getElementById('bodyValue');
+    const tanninValue = document.getElementById('tanninValue');
+    const sweetnessValue = document.getElementById('sweetnessValue');
+    const cleanBtn = document.getElementById('cleanBtn');
+    const flawedBtn = document.getElementById('flawedBtn');
+    const flawType = document.getElementById('flawType');
+    const price = document.getElementById('price');
+    const notes = document.getElementById('notes');
+    const quickTag = document.getElementById('quickTag');
+    const techniqueGroup = document.getElementById('techniqueGroup');
+    const ratingFilter = document.getElementById('ratingFilter');
+    const priceFilter = document.getElementById('priceFilter');
+    const entriesEl = document.getElementById('entries');
+
+    let isClean = true;
+    let selectedRating = '';
+    let selectedPlacement = '';
+    let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+    function getTodayLocalDate() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset();
+      return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 10);
+    }
+
+    if (!tastingDate.value) {
+      tastingDate.value = getTodayLocalDate();
+    }
+
+    function setRangeLabels() {
+      acidValue.textContent = acid.value;
+      bodyValue.textContent = body.value;
+      tanninValue.textContent = tannins.value;
+      sweetnessValue.textContent = sweetness.value;
+    }
+
+    [acid, body, tannins, sweetness].forEach((el) => {
+      el.addEventListener('input', setRangeLabels);
+    });
+
+    function bindPress(target, handler) {
+      let handledPointer = false;
+
+      target.addEventListener('pointerup', (event) => {
+        if (event.pointerType === 'mouse') return;
+        handledPointer = true;
+        handler(event);
+      });
+
+      target.addEventListener('click', (event) => {
+        if (handledPointer) {
+          handledPointer = false;
+          return;
+        }
+        handler(event);
+      });
+    }
+
+    function setCondition(clean) {
+      isClean = clean;
+      cleanBtn.classList.toggle('active', clean);
+      flawedBtn.classList.toggle('active', !clean);
+      cleanBtn.classList.toggle('ok', true);
+      flawedBtn.classList.toggle('bad', true);
+      if (clean) flawType.value = '';
+    }
+
+    bindPress(cleanBtn, () => setCondition(true));
+    bindPress(flawedBtn, () => setCondition(false));
+
+    function setupPillGroup(groupId, callback) {
+      const group = document.getElementById(groupId);
+      group.querySelectorAll('.pill').forEach((btn) => {
+        bindPress(btn, () => {
+          group.querySelectorAll('.pill').forEach((pill) => pill.classList.remove('active'));
+          btn.classList.add('active');
+          callback(btn.dataset.value);
+        });
+      });
+    }
+
+    setupPillGroup('ratingGroup', (value) => {
+      selectedRating = value;
+    });
+    setupPillGroup('placementGroup', (value) => {
+      selectedPlacement = value;
+    });
+
+    function clearPills(groupId) {
+      document.querySelectorAll('#' + groupId + ' .pill').forEach((btn) => btn.classList.remove('active'));
+    }
+
+    function resetForm() {
+      producer.value = '';
+      wineName.value = '';
+      category.value = '';
+      variety.value = '';
+      acid.value = 3;
+      body.value = 3;
+      tannins.value = 2;
+      sweetness.value = 2;
+      setRangeLabels();
+      setCondition(true);
+      flawType.value = '';
+      selectedRating = '';
+      selectedPlacement = '';
+      clearPills('ratingGroup');
+      clearPills('placementGroup');
+      techniqueGroup.querySelectorAll('input').forEach((input) => {
+        input.checked = false;
+      });
+      price.value = '';
+      notes.value = '';
+      quickTag.value = '';
+      producer.focus();
+    }
+
+    function saveEntries() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function getSelectedTechniques() {
+      return Array.from(techniqueGroup.querySelectorAll('input:checked')).map((input) => input.value);
+    }
+
+    function syncEntryToGoogleSheets(entry) {
+      return fetch(SHEETS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(entry)
+      }).catch((error) => {
+        console.error('Google Sheets sync failed:', error);
+      });
+    }
+
+    function buildEntry() {
+      return {
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        tastingDate: tastingDate.value || getTodayLocalDate(),
+        repImporter: repImporter.value.trim(),
+        producer: producer.value.trim(),
+        wineName: wineName.value.trim(),
+        category: category.value,
+        variety: variety.value,
+        acid: Number(acid.value),
+        body: Number(body.value),
+        tannins: Number(tannins.value),
+        sweetness: Number(sweetness.value),
+        condition: isClean ? 'Clean' : 'Flawed',
+        flawType: isClean ? '' : flawType.value,
+        rating: selectedRating,
+        placement: selectedPlacement,
+        techniques: getSelectedTechniques(),
+        price: price.value.trim(),
+        quickTag: quickTag.value,
+        notes: notes.value.trim()
+      };
+    }
+
+    function validate(entry) {
+      if (!entry.producer && !entry.wineName) {
+        alert('Add at least a producer or wine name.');
+        return false;
+      }
+      return true;
+    }
+
+    function ratingToDisplay(rating) {
+      if (rating === '1 Star') return '★';
+      if (rating === '2 Star') return '★★';
+      if (rating === '3 Star') return '★★★';
+      return rating || '-';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'Date not set';
+      const parsed = new Date(dateStr + 'T12:00:00');
+      if (Number.isNaN(parsed.getTime())) return dateStr;
+      return parsed.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function parsePriceValue(priceText) {
+      if (!priceText) return null;
+      const match = String(priceText).match(/\d+(\.\d+)?/);
+      return match ? Number(match[0]) : null;
+    }
+
+    function matchesRatingFilter(entry, filterValue) {
+      if (!filterValue) return true;
+      if (filterValue === 'unrated') return !entry.rating;
+      return entry.rating === filterValue;
+    }
+
+    function matchesPriceFilter(entry, filterValue) {
+      if (!filterValue) return true;
+      const parsedPrice = parsePriceValue(entry.price);
+      if (filterValue === 'unpriced') return parsedPrice === null;
+      if (parsedPrice === null) return false;
+      if (filterValue === 'under-25') return parsedPrice < 25;
+      if (filterValue === '25-50') return parsedPrice >= 25 && parsedPrice <= 50;
+      if (filterValue === '50-100') return parsedPrice > 50 && parsedPrice <= 100;
+      if (filterValue === '100-plus') return parsedPrice > 100;
+      return true;
+    }
+
+    function render() {
+      if (!entries.length) {
+        entriesEl.innerHTML = '<div class="empty-state">No saved wines yet.</div>';
+        return;
+      }
+
+      const filteredEntries = entries
+        .slice()
+        .reverse()
+        .filter((entry) => matchesRatingFilter(entry, ratingFilter.value))
+        .filter((entry) => matchesPriceFilter(entry, priceFilter.value));
+
+      if (!filteredEntries.length) {
+        entriesEl.innerHTML = '<div class="empty-state">No wines match those filters.</div>';
+        return;
+      }
+
+      entriesEl.innerHTML = filteredEntries.map((entry) => {
+        const title = [entry.producer, entry.wineName].filter(Boolean).join(' - ') || 'Unnamed wine';
+        const meta = [entry.category, entry.variety].filter(Boolean).join(' · ');
+        const badges = [
+          entry.rating ? `<span class="badge stars">${escapeHtml(ratingToDisplay(entry.rating))}</span>` : '',
+          entry.placement ? `<span class="badge">${escapeHtml(entry.placement)}</span>` : '',
+          entry.condition ? `<span class="badge">${escapeHtml(entry.condition)}${entry.flawType ? ': ' + escapeHtml(entry.flawType) : ''}</span>` : '',
+          Array.isArray(entry.techniques) ? entry.techniques.map((technique) => `<span class="badge">${escapeHtml(technique)}</span>`).join('') : '',
+          entry.quickTag ? `<span class="badge">${escapeHtml(entry.quickTag)}</span>` : '',
+          entry.price ? `<span class="badge">$ ${escapeHtml(entry.price)}</span>` : ''
+        ].join('');
+
+        return `
+          <div class="list-item">
+            <div class="list-top">
+              <div>
+                <div class="wine-title">${escapeHtml(title)}</div>
+                <div class="meta-stack">
+                  <div class="meta">${escapeHtml(meta || 'No category / variety')}</div>
+                  <div class="meta">Tasted ${escapeHtml(formatDate(entry.tastingDate || ''))}</div>
+                  ${entry.repImporter ? `<div class="meta">Rep / Importer: ${escapeHtml(entry.repImporter)}</div>` : ''}
+                </div>
+              </div>
+              <button class="secondary" onclick="removeEntry('${entry.id}')">Delete</button>
+            </div>
+            <div class="badge-row">${badges}</div>
+            <div class="mini">Acid ${entry.acid} · Body ${entry.body} · Tannins ${entry.tannins} · Sweetness ${entry.sweetness}</div>
+            ${entry.notes ? `<div class="mini" style="margin-top:8px;">${escapeHtml(entry.notes)}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    window.removeEntry = function(id) {
+      entries = entries.filter((entry) => entry.id !== id);
+      saveEntries();
+      render();
+    };
+
+    bindPress(document.getElementById('saveBtn'), () => {
+      const entry = buildEntry();
+      if (!validate(entry)) return;
+      entries.push(entry);
+      saveEntries();
+      syncEntryToGoogleSheets(entry);
+      render();
+      resetForm();
+    });
+
+    bindPress(document.getElementById('clearBtn'), resetForm);
+
+    bindPress(document.getElementById('wipeBtn'), () => {
+      if (!confirm('Delete all saved tasting entries?')) return;
+      entries = [];
+      saveEntries();
+      render();
+    });
+
+    bindPress(document.getElementById('exportBtn'), () => {
+      const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tasting-notes-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    ratingFilter.addEventListener('change', render);
+    priceFilter.addEventListener('change', render);
+
+    setRangeLabels();
+    setCondition(true);
+    render();
+  </script>
+</body>
+</html>

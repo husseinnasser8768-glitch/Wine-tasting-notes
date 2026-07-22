@@ -3,6 +3,12 @@ function doPost(e) {
   const tabName = data.entryBy === 'Dan' ? 'Dan' : 'Hussein';
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(tabName);
 
+  if (!sheet) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: 'Missing sheet tab: ' + tabName }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   sheet.appendRow([
     data.entryBy || '',
     data.tastingDate || '',
